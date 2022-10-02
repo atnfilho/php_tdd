@@ -1,0 +1,15 @@
+{
+    "name": "antonio/leilao",
+    "autoload": {
+        "psr-4": {
+            "Antonio\\Leilao\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "antonio filho",
+            "email": "atnfilho@yahoo.com.br"
+        }
+    ],
+    "require": {}
+}
