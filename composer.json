@@ -11,5 +11,7 @@
             "email": "atnfilho@yahoo.com.br"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "phpunit/phpunit": "8"
+    }
 }
