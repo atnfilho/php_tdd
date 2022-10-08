@@ -1,6 +1,7 @@
 <?php
 
 namespace Antonio\Leilao\Tests\Service;
+
 use PHPUnit\Framework\TestCase;
 
 use Antonio\Leilao\Model\Leilao;
@@ -11,102 +12,115 @@ use Antonio\Leilao\Service\Avaliador;
 
 class AvaliadorTest extends TestCase
 {
-    public function testAvaliadorDeveEncontrarMaiorValorEmOrdemDecrescente()
+    private $leiloeiro;
+
+    public function setUp(): void
     {
-        // ARRANGE ou GIVEN
-        $leilao = new Leilao('Fiat 147 0km');
+        $this->leiloeiro = new Avaliador();
+    }
 
-        $maria = new Usuario('Maria');
-        $joao = new Usuario('João');
-
-
-        $leilao->recebeLances(new Lance($joao, 2000));
-        $leilao->recebeLances(new Lance($maria, 2500));
-
-
+    /**
+     * @dataProvider leilaoEmOrdemCrescente
+     * @dataProvider leilaoEmOrdemDecrescente
+     * @dataProvider leilaoEmOrdemAleatoria
+     */
+    public function testAvaliadorDeveEncontrarMaiorValor(Leilao $leilao)
+    {
         // ACT ou WHEN
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
+        $this->leiloeiro->avalia($leilao);
 
-        $maiorValor = $leiloeiro->getMaiorValor();
+        $maiorValor = $this->leiloeiro->getMaiorValor();
         $valorEsperado = 2500;
 
         // ASSERT ou THEN
         SELF::assertEquals($valorEsperado, $maiorValor);
     }
 
-
-    public function testAvaliadorDeveEncontrarMaiorValorEmOrdemCrescente()
+    /**
+     * @dataProvider leilaoEmOrdemCrescente
+     * @dataProvider leilaoEmOrdemDecrescente
+     * @dataProvider leilaoEmOrdemAleatoria
+     */
+    public function testAvaliadorDeveEncontrarMenorValor(Leilao $leilao)
     {
-        // ARRANGE ou GIVEN
-        $leilao = new Leilao('Fiat 147 0km');
-
-        $maria = new Usuario('Maria');
-        $joao = new Usuario('João');
-
-
-        $leilao->recebeLances(new Lance($joao, 2000));
-        $leilao->recebeLances(new Lance($maria, 2500));
-
-
         // ACT ou WHEN
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
+        $this->leiloeiro->avalia($leilao);
 
-        $maiorValor = $leiloeiro->getMaiorValor();
-        $valorEsperado = 2500;
-
-        // ASSERT ou THEN
-        SELF::assertEquals($valorEsperado, $maiorValor);
-    }
-
-
-    public function testAvaliadorDeveEncontrarMenorValorEmOrdemCrescente()
-    {
-        // ARRANGE ou GIVEN
-        $leilao = new Leilao('Fiat 147 0km');
-
-        $maria = new Usuario('Maria');
-        $joao = new Usuario('João');
-
-
-        $leilao->recebeLances(new Lance($joao, 2000));
-        $leilao->recebeLances(new Lance($maria, 2500));
-
-
-        // ACT ou WHEN
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
-
-        $menorValor = $leiloeiro->getMenorValor();
-        $valorEsperado = 2000;
+        $menorValor = $this->leiloeiro->getMenorValor();
+        $valorEsperado = 1700;
 
         // ASSERT ou THEN
         SELF::assertEquals($valorEsperado, $menorValor);
     }
 
 
-    public function testAvaliadorDeveBuscarOsTresMaioresLances()
+    /**
+     * @dataProvider leilaoEmOrdemCrescente
+     * @dataProvider leilaoEmOrdemDecrescente
+     * @dataProvider leilaoEmOrdemAleatoria
+     */
+    public function testAvaliadorDeveBuscarOsTresMaioresLances(Leilao $leilao)
+    {
+        $this->leiloeiro->avalia($leilao);
+
+        $maiores = $this->leiloeiro->getMaioresLances();
+        static::assertCount(3, $maiores);
+        static::assertEquals(2500, $maiores[0]->getValor());
+        static::assertEquals(2000, $maiores[1]->getValor());
+        static::assertEquals(1700, $maiores[2]->getValor());
+    }
+
+
+    /* ------------------- DADOS -------------------- */
+
+    public function leilaoEmOrdemCrescente()
     {
         $leilao = new Leilao('Fiat 147 0km');
 
         $joao = new Usuario('João');
         $maria = new Usuario('Maria');
         $ana = new Usuario('Ana');
-        $jorge = new usuario('Jorge');
 
-        $leilao->recebeLances(new Lance($ana, 1500));
-        $leilao->recebeLances(new Lance($joao, 1000));
-        $leilao->recebeLances(new Lance($maria, 2000));
-        $leilao->recebeLances(new Lance($jorge, 1700));
+        $leilao->recebeLances(new Lance($ana, 1700));
+        $leilao->recebeLances(new Lance($joao, 2000));
+        $leilao->recebeLances(new Lance($maria, 2500));
 
-        $leiloeiro = new Avaliador();
-        $leiloeiro->avalia($leilao);
+        return [
+            "ordem-crescente" => [$leilao]
+        ];
+    }
 
-        $maiores = $leiloeiro->getMaioresLances();
-        static::assertCount(3, $maiores);
-        static::assertEquals(2000, $maiores[0]->getValor());
-        static::assertEquals(1700, $maiores[1]->getValor());
-        static::assertEquals(1500, $maiores[2]->getValor());
+    public function leilaoEmOrdemDecrescente()
+    {
+        $leilao = new Leilao('Fiat 147 0km');
+
+        $joao = new Usuario('João');
+        $maria = new Usuario('Maria');
+        $ana = new Usuario('Ana');
+
+        $leilao->recebeLances(new Lance($maria, 2500));
+        $leilao->recebeLances(new Lance($joao, 2000));
+        $leilao->recebeLances(new Lance($ana, 1700));
+
+        return [
+            "ordem-decrescente" => [$leilao]
+        ];
+    }
+
+    public function leilaoEmOrdemAleatoria()
+    {
+        $leilao = new Leilao('Fiat 147 0km');
+
+        $joao = new Usuario('João');
+        $maria = new Usuario('Maria');
+        $ana = new Usuario('Ana');
+
+        $leilao->recebeLances(new Lance($ana, 1700));
+        $leilao->recebeLances(new Lance($maria, 2500));
+        $leilao->recebeLances(new Lance($joao, 2000));
+
+        return [
+            "ordem-aleatória" => [$leilao]
+        ];
     }
 }
