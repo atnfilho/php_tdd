@@ -1,3 +1,9 @@
+Antonio\Leilao\Tests\Model\Leilao
+ [x] Leilao nao deve receber lances repetidos
+ [x] Leilao nao deve aceitar mais de cinco lances do mesmo usuario
+ [x] Leilao deve receber lances with data set "2-lances"
+ [x] Leilao deve receber lances with data set "1-lance"
+
 Antonio\Leilao\Tests\Service\Avaliador
  [x] Avaliador deve encontrar maior valor with data set "ordem-crescente"
  [x] Avaliador deve encontrar maior valor with data set "ordem-decrescente"
