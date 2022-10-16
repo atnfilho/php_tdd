@@ -12,6 +12,7 @@ use Antonio\Leilao\Service\Avaliador;
 
 class AvaliadorTest extends TestCase
 {
+    /** @var Avaliador */
     private $leiloeiro;
 
     public function setUp(): void
@@ -70,6 +71,28 @@ class AvaliadorTest extends TestCase
         static::assertEquals(1700, $maiores[2]->getValor());
     }
 
+
+    public function testLeilaoVazioNaoPodeSerAvaliado()
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Não é possível avaliar leilão vazio');
+
+        $leilao = new Leilao("Fusca Azul");
+        $this->leiloeiro->avalia($leilao);
+    }
+
+    public function testLeilaoFinalizadoNaoPodeSerAvaliado()
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Leilão já finalizado');
+
+        $leilao = new Leilao("Fiat 147 0km");
+
+        $leilao->recebeLances(new Lance(new Usuario('teste'), 1000));
+        $leilao->finaliza();
+
+        $this->leiloeiro->avalia($leilao);
+    }
 
     /* ------------------- DADOS -------------------- */
 
